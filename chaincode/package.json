@@ -1,0 +1,16 @@
+{
+    "name": "qlthongtindat-chaincode",
+    "version": "1.0.0",
+    "description": "Chaincode Quan Ly Thong Tin Dat",
+    "main": "index.js",
+    "scripts": {
+        "start": "fabric-chaincode-node start",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "fabric-contract-api": "^2.2.0",
+        "fabric-shim": "^2.2.0"
+    },
+    "author": "Nguyen Minh Tan",
+    "license": "Apache-2.0"
+}

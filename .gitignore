@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.vscode/
+.DS_Store
+npm/
+yarn-error.log
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+lib-cov/
+*.tsbuildinfo   
+*.env
