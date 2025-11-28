@@ -9,13 +9,27 @@ const userRoles = ['admin', 'user'];
 class QLTaiKhoan extends Contract {
     constructor() { super('QLTaiKhoan'); }
 
-    async initLedger(ctx) {
-        const admin = { userId:'admin', name:'Administrator', passwordHash:hashPassword('adminpw'),email: 'admin@qlthongtindat.com', phone: '1234567890', role:'admin', active:true, createdAt:new Date().toISOString() };
+    async initAdmin(ctx, adminId, adminEmail, adminPassword) {
+        const exists = await ctx.stub.getState(userKey(adminId));
+        if (exists && exists.length > 0) throw new Error(`Admin user ${adminId} already exists`);
+        const admin = {
+            userId: adminId,
+            name: 'Administrator',
+            passwordHash: hashPassword(adminPassword),
+            email: adminEmail,
+            phone: '1234567890',
+            role: 'admin',
+            active: true,
+            createdAt: new Date().toISOString()
+        };
         await ctx.stub.putState(userKey(admin.userId), Buffer.from(JSON.stringify(admin)));
+    }
 
-        const user1 = { userId:'user1', name:'Nguyen Van A', passwordHash:hashPassword('user1pw'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true, createdAt:new Date().toISOString() };
+    async initLedger(ctx) {
+        const user1 = { userId:'user1', name:'Nguyen Van A', passwordHash:hashPassword('123qwe!@#'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true, createdAt:new Date().toISOString() };
         await ctx.stub.putState(userKey(user1.userId), Buffer.from(JSON.stringify(user1)));
-
+        const user2 = { userId:'user2', name:'Tran Thi B', passwordHash:hashPassword('123qwe!@#'), email: 'user2@example.com', phone: '0987654322', role:'user', active:true, createdAt:new Date().toISOString() };
+        await ctx.stub.putState(userKey(user2.userId), Buffer.from(JSON.stringify(user2)));
         return 'Initialized 2 users';
     }
 
@@ -122,16 +136,23 @@ class QLTaiKhoan extends Contract {
         return JSON.stringify(user);
     }
 
-    async updateUserProfile(ctx, userId, name, email, phone) {
+    async updateUserProfile(ctx, userId, name, phone) {
         const userBytes = await ctx.stub.getState(userKey(userId));
         if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
         const user = JSON.parse(userBytes.toString());
         user.name = name;
-        user.email = email;
         user.phone = phone;
         user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
+    }
+
+    async deleteUser(ctx, userId) {
+        await requireAdmin(ctx);
+        const userBytes = await ctx.stub.getState(userKey(userId));
+        if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
+        await ctx.stub.deleteState(userKey(userId));
+        return `User ${userId} deleted successfully`;
     }
 }
 

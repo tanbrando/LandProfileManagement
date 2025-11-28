@@ -3,6 +3,13 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config(); 
 
+const initAdminService = require('./services/InitAdminService');
+
+(async () => {
+    const result = await initAdminService();
+    console.log(result.message);
+})();
+
 
 const app = express();
 const userRoutes = require('./routes/userRoutes');
@@ -18,12 +25,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use('/users', userRoutes);
-app.use('/lands', landRoutes);
-app.use('/transactions', transactionRoutes);
-app.use('/reports', reportRoutes);
-app.use('/auth', authRoutes);
-
+app.use('/api/users', userRoutes);
+app.use('/api/lands', landRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/auth', authRoutes);
 // Health check
 app.get('/health', (req, res) => {
     res.status(200).json({

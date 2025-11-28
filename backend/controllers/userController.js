@@ -21,6 +21,7 @@ async function createUser(req, res) {
     let gateway;
     try {
         const { userId, name, password, email, phone } = req.body;
+        email = req.email;
         const connection = await connectToNetwork(chaincodeName);
         gateway = connection.gateway;
         const contract = connection.contract;
@@ -141,11 +142,11 @@ async function updateUserProfile(req, res) {
     let gateway;
     try {
         const userId = req.user?.userId;
-        const { name, email, phone } = req.body;
+        const { name, phone } = req.body;
         const connection = await connectToNetwork(chaincodeName);
         gateway = connection.gateway;
         const contract = connection.contract;   
-        await contract.submitTransaction('updateUserProfile', userId, name, email, phone);
+        await contract.submitTransaction('updateUserProfile', userId, name, phone);
         res.status(200).json({ success: true, message: `Đã cập nhật thông tin tài khoản ${userId} thành công` });
     } catch (error) {
         console.error(`Lỗi khi cập nhật thông tin tài khoản: ${error}`);
@@ -155,6 +156,22 @@ async function updateUserProfile(req, res) {
     }
 }
 
+async function deleteUser(req, res) {
+    let gateway;
+    try {
+        const { userId } = req.params;
+        const connection = await connectToNetwork(chaincodeName, true);
+        gateway = connection.gateway;
+        const contract = connection.contract;   
+        await contract.submitTransaction('deleteUser', userId);
+        res.status(200).json({ success: true, message: `Đã xóa tài khoản ${userId} thành công` });
+    } catch (error) {
+        console.error(`Lỗi khi xóa tài khoản: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi xóa tài khoản: ${error.message}` });
+    } finally {
+        if (gateway) await gateway.disconnect().catch(() => {});
+    }
+}
 
 module.exports = {
     initLedger,
@@ -165,5 +182,6 @@ module.exports = {
     getUser,
     getAllUsers,
     updatePassword,
-    updateUserProfile
+    updateUserProfile,
+    deleteUser
 };

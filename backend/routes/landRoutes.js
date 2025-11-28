@@ -11,7 +11,8 @@ const { authMiddleware, requireAdmin } = require('../middlewares/authMiddleware'
 const { validateFields } = require('../middlewares/validateFields');
 const { 
     validateLandId, validateUserId, validateAddress, validateArea,
-    validateLandType, validateSoGiayTo, validateDate, validateLandValue
+    validateLandType, validateSoGiayTo, validateDate, validateLandValue,
+    validateLandStatus
 } = require('../utils/validator');
 
 // Khởi tạo dữ liệu ban đầu (Admin)

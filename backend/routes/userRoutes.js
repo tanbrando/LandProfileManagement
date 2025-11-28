@@ -24,6 +24,10 @@ router.put('/deactivateUser/:userId', authMiddleware, requireAdmin, validateFiel
 router.put('/reactivateUser/:userId', authMiddleware, requireAdmin, validateFields({
     userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
 }), reactivateUser);
+// Xóa tài khoản người dùng (Admin)
+router.delete('/deleteUser/:userId', authMiddleware, requireAdmin, validateFields({
+    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
+}), deleteUser);
 // Lấy tất cả người dùng (Admin)
 router.get('/getAllUsers', authMiddleware, requireAdmin, getAllUsers);
 
@@ -46,7 +50,6 @@ router.put('/updatePassword', authMiddleware, validateFields({
 // Cập nhật thông tin hồ sơ người dùng
 router.put('/updateUserProfile', authMiddleware, validateFields({
     name: { required: true, fn: validateName, message: "Invalid name format" },
-    email: { required: true, fn: validateEmail, message: "Invalid email format" },
     phone: { required: true, fn: validatePhone, message: "Invalid phone number format" }
 }), updateUserProfile);
 

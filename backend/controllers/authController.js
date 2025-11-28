@@ -1,10 +1,9 @@
 const {connectToNetwork} = require('../fabric/network');
 const chaincodeName = 'qltaikhoan';
 const jwt = require('jsonwebtoken');
-const { SECRET } = require('./authMiddleware');
+const { SECRET } = require('../middlewares/authMiddleware');
 const { generateOTP, saveOTP, verifyOTP } = require('../services/otpService');
 const { sendEmailOTP } = require('../config/email');
-const { validateEmail, validatePassword } = require('../utils/validator');
 
 async function authenticate(req, res) {
     let gateway;
@@ -18,7 +17,7 @@ async function authenticate(req, res) {
 
         const user = JSON.parse(result.toString());
         const token = jwt.sign({ userId: user.userId, role: user.role }, SECRET, { expiresIn: '1h' });
-        res.status(200).json({ success: true, user, token });
+        res.status(200).json({ success: true, token });
     } catch (error) {
         console.error(`Lỗi khi xác thực tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi xác thực tài khoản: ${error.message}` });

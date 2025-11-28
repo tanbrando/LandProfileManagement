@@ -14,3 +14,4 @@ pids/
 lib-cov/
 *.tsbuildinfo   
 *.env
+/frontend
