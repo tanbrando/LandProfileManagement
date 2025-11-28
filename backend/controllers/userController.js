@@ -1,10 +1,10 @@
 const {connectToNetwork} = require('../fabric/network');
-const chaincodeName = 'qltaikhoan';
+const contractName = 'QLTaikhoan';
 
 async function initLedger(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         await contract.submitTransaction('initLedger');
@@ -13,7 +13,13 @@ async function initLedger(req, res) {
         console.error(`Lỗi khi khởi tạo tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi khởi tạo tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -22,7 +28,7 @@ async function createUser(req, res) {
     try {
         const { userId, name, password, email, phone } = req.body;
         email = req.email;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         await contract.submitTransaction('createUser', userId, name, password, email, phone);
@@ -31,7 +37,13 @@ async function createUser(req, res) {
         console.error(`Lỗi khi tạo tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi tạo tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -40,7 +52,7 @@ async function updateUserRole(req, res) {
     try {
         const { userId } = req.params;
         const { newRole } = req.body;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('updateUserRole', userId, newRole);
@@ -49,7 +61,13 @@ async function updateUserRole(req, res) {
         console.error(`Lỗi khi cập nhật vai trò tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi cập nhật vai trò tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }  
 
@@ -57,7 +75,7 @@ async function deactivateUser(req, res) {
     let gateway;
     try {
         const { userId } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('deactivateUser', userId);
@@ -66,7 +84,13 @@ async function deactivateUser(req, res) {
         console.error(`Lỗi khi vô hiệu hóa tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi vô hiệu hóa tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -74,7 +98,7 @@ async function reactivateUser(req, res) {
     let gateway;
     try {
         const { userId } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('reactivateUser', userId);
@@ -83,7 +107,13 @@ async function reactivateUser(req, res) {
         console.error(`Lỗi khi kích hoạt lại tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi kích hoạt lại tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -91,7 +121,7 @@ async function getUser(req, res) {
     let gateway;
     try {
         userId = req.user?.userId;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;   
         const result = await contract.evaluateTransaction('queryUser', userId);
@@ -100,14 +130,20 @@ async function getUser(req, res) {
         console.error(`Lỗi khi truy vấn tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getAllUsers(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllUsers');
@@ -116,7 +152,13 @@ async function getAllUsers(req, res) {
         console.error(`Lỗi khi truy vấn tất cả tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn tất cả tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -125,7 +167,7 @@ async function updatePassword(req, res) {
     try {
         const userId = req.user?.userId;
         const { oldPassword, newPassword } = req.body;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('updatePassword', userId, oldPassword, newPassword);
@@ -134,7 +176,13 @@ async function updatePassword(req, res) {
         console.error(`Lỗi khi cập nhật mật khẩu tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi cập nhật mật khẩu tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -143,7 +191,7 @@ async function updateUserProfile(req, res) {
     try {
         const userId = req.user?.userId;
         const { name, phone } = req.body;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('updateUserProfile', userId, name, phone);
@@ -152,7 +200,13 @@ async function updateUserProfile(req, res) {
         console.error(`Lỗi khi cập nhật thông tin tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi cập nhật thông tin tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -160,7 +214,7 @@ async function deleteUser(req, res) {
     let gateway;
     try {
         const { userId } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('deleteUser', userId);
@@ -169,7 +223,13 @@ async function deleteUser(req, res) {
         console.error(`Lỗi khi xóa tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi xóa tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 

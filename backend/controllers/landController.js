@@ -1,10 +1,10 @@
 const {connectToNetwork} = require('../fabric/network');
-const chaincodeName = 'qlthongtindat';
+const contractName = 'QLThongTinDat';
 
 async function initLedger(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
 
@@ -14,14 +14,20 @@ async function initLedger(req, res) {
         console.error(`Lỗi khi khởi tạo dữ liệu: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi khởi tạo dữ liệu: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getAllLandProfiles(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -30,7 +36,13 @@ async function getAllLandProfiles(req, res) {
         console.error(`Lỗi khi lấy danh sách đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy danh sách đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {  
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -38,7 +50,7 @@ async function getLandProfileById(req, res) {
     let gateway;
     try {
         const { maSo } = req.params;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryLandProfile', maSo);
@@ -47,7 +59,13 @@ async function getLandProfileById(req, res) {
         console.error(`Lỗi khi lấy thông tin đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy thông tin đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -58,7 +76,7 @@ async function createLandProfile(req, res) {
             maSo, chuSoHuu, diaChi, dienTich,
             loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat
         } = req.body;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
 
@@ -72,7 +90,13 @@ async function createLandProfile(req, res) {
         console.error(`Lỗi khi tạo thông tin đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi tạo thông tin đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -81,7 +105,7 @@ async function updateLandProfile(req, res) {
     try {
         const { maSo } = req.params;
         const { chuSoHuu, diaChi, dienTich, loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat } = req.body;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction(
@@ -94,7 +118,13 @@ async function updateLandProfile(req, res) {
         console.error(`Lỗi khi cập nhật thông tin đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi cập nhật thông tin đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -102,7 +132,7 @@ async function deleteLandProfile(req, res) {
     let gateway;
     try {
         const { maSo } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
         await contract.submitTransaction('deleteLandProfile', maSo);
@@ -111,7 +141,13 @@ async function deleteLandProfile(req, res) {
         console.error(`Lỗi khi xóa thông tin đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi xóa thông tin đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -119,7 +155,7 @@ async function getUserLandProfiles(req, res) {
     let gateway;
     try {
         const userId = req.user?.userId;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -130,7 +166,13 @@ async function getUserLandProfiles(req, res) {
         console.error(`Lỗi khi lấy danh sách đất của người dùng: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy danh sách đất của người dùng: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -138,7 +180,7 @@ async function getLandProfilesByStatus(req, res) {
     let gateway;
     try {
         const { trangThai } = req.params;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -149,7 +191,13 @@ async function getLandProfilesByStatus(req, res) {
         console.error(`Lỗi khi lấy danh sách đất theo trạng thái: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy danh sách đất theo trạng thái: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -157,7 +205,7 @@ async function getLandProfilesByRange(req, res) {
     let gateway;
     try {
         const { minGiaTri, maxGiaTri } = req.params;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -168,7 +216,13 @@ async function getLandProfilesByRange(req, res) {
         console.error(`Lỗi khi lấy danh sách đất theo khoảng giá trị: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy danh sách đất theo khoảng giá trị: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -176,7 +230,7 @@ async function getLandProfilesByType(req, res) {
     let gateway;
     try {
         const { loaiDat } = req.params;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -187,7 +241,13 @@ async function getLandProfilesByType(req, res) {
         console.error(`Lỗi khi lấy danh sách đất theo loại đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy danh sách đất theo loại đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -204,7 +264,7 @@ async function importCSVLandProfiles(req, res) {
         if (header.length !== expectedHeader.length || !header.every((val, index) => val === expectedHeader[index])) {
             return res.status(400).json({ success: false, message: 'Định dạng CSV không hợp lệ' });
         }
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         for (let i = 1; i < lines.length; i++) {
@@ -222,14 +282,20 @@ async function importCSVLandProfiles(req, res) {
         console.error(`Lỗi khi nhập dữ liệu đất từ CSV: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi nhập dữ liệu đất từ CSV: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function exportCSVLandProfiles(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -246,14 +312,20 @@ async function exportCSVLandProfiles(req, res) {
         console.error(`Lỗi khi xuất dữ liệu đất ra CSV: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi xuất dữ liệu đất ra CSV: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getLandTypeStatistics(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -268,14 +340,20 @@ async function getLandTypeStatistics(req, res) {
         console.error(`Lỗi khi lấy thống kê loại đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy thống kê loại đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getLandStatusStatistics(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;   
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -297,7 +375,7 @@ async function getLandStatusStatistics(req, res) {
 async function getAllLandProfilesSummary(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
@@ -312,7 +390,13 @@ async function getAllLandProfilesSummary(req, res) {
         console.error(`Lỗi khi thống kê hồ sơ đất đai: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi thống kê hồ sơ đất đai: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 

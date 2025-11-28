@@ -3,7 +3,8 @@ const router = express.Router();
 const { 
     initLedger, createUser, updateUserRole, 
     deactivateUser, reactivateUser, getUser, 
-    getAllUsers, updatePassword, updateUserProfile 
+    getAllUsers, updatePassword, updateUserProfile, 
+    deleteUser
 } = require('../controllers/userController');
 const { authMiddleware, requireAdmin, requireOTP } = require('../middlewares/authMiddleware');
 const { validateFields } = require('../middlewares/validateFields');

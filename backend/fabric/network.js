@@ -1,10 +1,12 @@
 const { Wallets, Gateway } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
-async function connectToNetwork(chaincodeName, isAdmin = false) {
+async function connectToNetwork(contractName, isAdmin = false) {
     const user = isAdmin ? 'admin' : 'appUser';
     const ccpPath = path.resolve(process.env.CCP_PATH);
+    const chaincodeName = process.env.CHAINCODE_NAME || 'qlthongtindat';
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
     const wallet = await Wallets.newFileSystemWallet(path.join(process.cwd(), 'wallet'));
 
@@ -19,7 +21,7 @@ async function connectToNetwork(chaincodeName, isAdmin = false) {
     });
 
     const network = await gateway.getNetwork(process.env.CHANNEL_NAME || 'mychannel');
-    const contract = network.getContract(chaincodeName);
+    const contract = network.getContract(chaincodeName, contractName);
     return { gateway, contract };
 }
 

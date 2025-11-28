@@ -6,6 +6,8 @@
 
 'use strict';
 
+require('dotenv').config();
+
 const FabricCAServices = require('fabric-ca-client');
 const { Wallets } = require('fabric-network');
 const fs = require('fs');

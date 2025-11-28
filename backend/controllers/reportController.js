@@ -22,11 +22,11 @@ async function createUserReport(req, res) {
         const format = (req.query.format || 'json').toLowerCase();
 
         // Kết nối chaincode
-        const transConnection = await connectToNetwork('qlchuyennhuong');
+        const transConnection = await connectToNetwork('QLChuyenNhuong');
         transGateway = transConnection.gateway;
-        const landConnection = await connectToNetwork('qlthongtindat');
+        const landConnection = await connectToNetwork('QLThongTinDat');
         landGateway = landConnection.gateway;
-        const userConnection = await connectToNetwork('qltaikhoan');
+        const userConnection = await connectToNetwork('QLTaikhoan');
         userGateway = userConnection.gateway;
 
         const transContract = transConnection.contract;
@@ -122,9 +122,27 @@ async function createUserReport(req, res) {
         console.error(`Lỗi khi tạo báo cáo người dùng: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi tạo báo cáo người dùng: ${error.message}` });
     } finally {
-        if (transGateway) await transGateway.disconnect().catch(() => {});
-        if (landGateway) await landGateway.disconnect().catch(() => {});
-        if (userGateway) await userGateway.disconnect().catch(() => {});
+        if (transGateway) {
+            try {
+                transGateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway chuyển nhượng:', err);
+            }
+        }
+        if (landGateway) {
+            try {
+                landGateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway đất:', err);
+            }
+        }
+        if (userGateway) {
+            try {
+                userGateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway người dùng:', err);
+            }
+        }
     }
 }
 

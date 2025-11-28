@@ -1,11 +1,11 @@
 const {connectToNetwork} = require('../fabric/network');
-const chaincodeName = 'qlchuyennhuong';
+const contractName = 'QLChuyenNhuong';
 
 async function createTransaction(req, res) {
     let gateway;
     try {
         const { maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich } = req.body;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         await contract.submitTransaction('createTransaction', maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich);
@@ -14,7 +14,13 @@ async function createTransaction(req, res) {
         console.error(`Lỗi khi tạo giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi tạo giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -22,7 +28,7 @@ async function approveTransaction(req, res) {
     let gateway;
     try {
         const { txId } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         await contract.submitTransaction('approveTransaction', txId);
@@ -31,7 +37,13 @@ async function approveTransaction(req, res) {
         console.error(`Lỗi khi phê duyệt giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi phê duyệt giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -39,7 +51,7 @@ async function rejectTransaction(req, res) {
     let gateway;
     try {
         const { txId } = req.params;
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         await contract.submitTransaction('rejectTransaction', txId);
@@ -48,7 +60,13 @@ async function rejectTransaction(req, res) {
         console.error(`Lỗi khi từ chối giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi từ chối giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -56,7 +74,7 @@ async function getTransaction(req, res) {
     let gateway;
     try {
         const { txId } = req.params;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryTransaction', txId);
@@ -66,14 +84,20 @@ async function getTransaction(req, res) {
         console.error(`Lỗi khi truy vấn giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getAllTransactions(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllTransactions');
@@ -83,7 +107,13 @@ async function getAllTransactions(req, res) {
         console.error(`Lỗi khi truy vấn tất cả giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn tất cả giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
@@ -91,7 +121,7 @@ async function getTransactionsByUser(req, res) {
     let gateway;
     try {
         const userId = req.user?.userId;
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryTransactionsByUser', userId);
@@ -101,14 +131,20 @@ async function getTransactionsByUser(req, res) {
         console.error(`Lỗi khi truy vấn giao dịch của người dùng: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn giao dịch của người dùng: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getTransactionStatusStatistics(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllTransactions');
@@ -124,14 +160,20 @@ async function getTransactionStatusStatistics(req, res) {
         console.error(`Lỗi khi truy vấn thống kê trạng thái giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn thống kê trạng thái giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 
 async function getTransactionTypeStatistics(req, res) {
     let gateway;
     try {
-        const connection = await connectToNetwork(chaincodeName, true);
+        const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllTransactions');
@@ -146,7 +188,13 @@ async function getTransactionTypeStatistics(req, res) {
         console.error(`Lỗi khi truy vấn thống kê loại giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi truy vấn thống kê loại giao dịch: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 

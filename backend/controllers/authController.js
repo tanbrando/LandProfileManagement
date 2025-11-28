@@ -1,5 +1,5 @@
 const {connectToNetwork} = require('../fabric/network');
-const chaincodeName = 'qltaikhoan';
+const contractName = 'QLTaikhoan';
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../middlewares/authMiddleware');
 const { generateOTP, saveOTP, verifyOTP } = require('../services/otpService');
@@ -10,7 +10,7 @@ async function authenticate(req, res) {
     try {
         const { userId, password } = req.body;
 
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;   
         const result = await contract.evaluateTransaction('authenticate', userId, password);
@@ -22,7 +22,13 @@ async function authenticate(req, res) {
         console.error(`Lỗi khi xác thực tài khoản: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi xác thực tài khoản: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 } 
 
@@ -66,7 +72,7 @@ async function resetPassword(req, res) {
         const email = req.email;
 
         // tìm userId bằng email trên chaincode
-        const connection = await connectToNetwork(chaincodeName);
+        const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
 
@@ -81,7 +87,13 @@ async function resetPassword(req, res) {
         console.error(error);
         res.status(500).json({ success: false, message: "Lỗi reset password: " + error.message });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 module.exports = { authenticate, sendOTP, verifyOTPCode, resetPassword };

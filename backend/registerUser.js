@@ -2,6 +2,7 @@ const { Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // Khai bao bien USER_NAME
 const USER_NAME = "appUser";
