@@ -1,5 +1,5 @@
 const {connectToNetwork} = require('../fabric/network');
-const contractName = 'QLTaikhoan';
+const contractName = 'QLTaiKhoan';
 require('dotenv').config();
 
 const InitAdminService = async () => {

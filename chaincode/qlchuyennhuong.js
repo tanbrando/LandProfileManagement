@@ -19,7 +19,7 @@ class QLChuyenNhuong extends Contract {
         return user;
     }
 
-    async createTransaction(ctx, maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich) {
+    async createTransaction(ctx, maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian) {
         if (!transferTypes.includes(loaiGiaoDich)) throw new Error(`Loai giao dich khong hop le`);
         const landBytes = await ctx.stub.getState(landKey(maSo));
         if (!landBytes || landBytes.length===0) throw new Error(`Dat ${maSo} khong ton tai`);
@@ -35,7 +35,16 @@ class QLChuyenNhuong extends Contract {
         if (land.chuSoHuu === chuSoHuuMoi) throw new Error('Nguoi nhan trung voi chu so huu hien tai');
 
         const txId = ctx.stub.getTxID();
-        const txRecord = { docType:'giaodich', txId, maSo, from:chuSoHuuCu, to:chuSoHuuMoi, giaTri:parseFloat(giaTri)|| land.giaTriDat, loaiGiaoDich:loaiGiaoDich, time:new Date().toISOString(), status:'pending' };
+        const txRecord = { 
+            docType:'giaodich', 
+            txId, 
+            maSo, 
+            from:chuSoHuuCu, 
+            to:chuSoHuuMoi, 
+            giaTri:parseFloat(giaTri)|| land.giaTriDat, 
+            loaiGiaoDich:loaiGiaoDich, 
+            thoiGian:thoiGian, 
+            status:'pending' };
         await ctx.stub.putState(transKey(txId), Buffer.from(JSON.stringify(txRecord)));
         return txRecord;
     }
@@ -52,7 +61,6 @@ class QLChuyenNhuong extends Contract {
         land.chuSoHuu = txRecord.to;
         land.giaTriDat = txRecord.giaTri;
         land.trangThai = 'active';
-        land.updatedAt = new Date().toISOString();
         await ctx.stub.putState(landKey(txRecord.maSo), Buffer.from(JSON.stringify(land)));
         txRecord.status = 'approved';
         await ctx.stub.putState(transKey(txId), Buffer.from(JSON.stringify(txRecord)));
@@ -70,7 +78,6 @@ class QLChuyenNhuong extends Contract {
         if (!landBytes || landBytes.length===0) throw new Error(`Dat ${txRecord.maSo} khong ton tai`);
         const land = JSON.parse(landBytes.toString());
         land.trangThai = 'active';
-        land.updatedAt = new Date().toISOString();
         await ctx.stub.putState(landKey(txRecord.maSo), Buffer.from(JSON.stringify(land)));
         txRecord.status = 'rejected';
         await ctx.stub.putState(transKey(txId), Buffer.from(JSON.stringify(txRecord)));
@@ -86,7 +93,6 @@ class QLChuyenNhuong extends Contract {
         if (!landBytes || landBytes.length===0) throw new Error(`Dat ${txRecord.maSo} khong ton tai`);
         const land = JSON.parse(landBytes.toString());
         land.trangThai = 'active';
-        land.updatedAt = new Date().toISOString();
         await ctx.stub.putState(landKey(txRecord.maSo), Buffer.from(JSON.stringify(land)));
         txRecord.status = 'cancelled';
         await ctx.stub.putState(transKey(txId), Buffer.from(JSON.stringify(txRecord)));

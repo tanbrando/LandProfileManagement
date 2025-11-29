@@ -26,7 +26,7 @@ async function createUserReport(req, res) {
         transGateway = transConnection.gateway;
         const landConnection = await connectToNetwork('QLThongTinDat');
         landGateway = landConnection.gateway;
-        const userConnection = await connectToNetwork('QLTaikhoan');
+        const userConnection = await connectToNetwork('QLTaiKhoan');
         userGateway = userConnection.gateway;
 
         const transContract = transConnection.contract;

@@ -1,5 +1,5 @@
 const {connectToNetwork} = require('../fabric/network');
-const contractName = 'QLTaikhoan';
+const contractName = 'QLTaiKhoan';
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../middlewares/authMiddleware');
 const { generateOTP, saveOTP, verifyOTP } = require('../services/otpService');

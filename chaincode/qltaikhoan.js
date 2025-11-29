@@ -20,15 +20,14 @@ class QLTaiKhoan extends Contract {
             phone: '1234567890',
             role: 'admin',
             active: true,
-            createdAt: new Date().toISOString()
         };
         await ctx.stub.putState(userKey(admin.userId), Buffer.from(JSON.stringify(admin)));
     }
 
     async initLedger(ctx) {
-        const user1 = { userId:'user1', name:'Nguyen Van A', passwordHash:hashPassword('123qwe!@#'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true, createdAt:new Date().toISOString() };
+        const user1 = { userId:'user1', name:'Nguyen Van A', passwordHash:hashPassword('123qwe!@#'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true };
         await ctx.stub.putState(userKey(user1.userId), Buffer.from(JSON.stringify(user1)));
-        const user2 = { userId:'user2', name:'Tran Thi B', passwordHash:hashPassword('123qwe!@#'), email: 'user2@example.com', phone: '0987654322', role:'user', active:true, createdAt:new Date().toISOString() };
+        const user2 = { userId:'user2', name:'Tran Thi B', passwordHash:hashPassword('123qwe!@#'), email: 'user2@example.com', phone: '0987654322', role:'user', active:true };
         await ctx.stub.putState(userKey(user2.userId), Buffer.from(JSON.stringify(user2)));
         return 'Initialized 2 users';
     }
@@ -44,8 +43,7 @@ class QLTaiKhoan extends Contract {
             email,
             phone,
             role: 'user', 
-            active: true,
-            createdAt: new Date().toISOString()
+            active: true
         };
 
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
@@ -59,7 +57,6 @@ class QLTaiKhoan extends Contract {
         if (!userBytes || userBytes.length === 0) throw new Error(`User ${userId} not found`);
         const user = JSON.parse(userBytes.toString());
         user.role = newRole;
-        user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
     }
@@ -109,7 +106,6 @@ class QLTaiKhoan extends Contract {
         if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
         const user = JSON.parse(userBytes.toString());
         user.active = false;
-        user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
     }
@@ -120,7 +116,6 @@ class QLTaiKhoan extends Contract {
         if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
         const user = JSON.parse(userBytes.toString());
         user.active = true;
-        user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
     }
@@ -131,7 +126,6 @@ class QLTaiKhoan extends Contract {
         const user = JSON.parse(userBytes.toString());
         if (hashPassword(oldPassword) !== user.passwordHash) throw new Error('Old password is incorrect');
         user.passwordHash = hashPassword(newPassword);
-        user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
     }
@@ -142,7 +136,6 @@ class QLTaiKhoan extends Contract {
         const user = JSON.parse(userBytes.toString());
         user.name = name;
         user.phone = phone;
-        user.updatedAt = new Date().toISOString();
         await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
         return JSON.stringify(user);
     }

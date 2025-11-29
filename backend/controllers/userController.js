@@ -1,5 +1,5 @@
 const {connectToNetwork} = require('../fabric/network');
-const contractName = 'QLTaikhoan';
+const contractName = 'QLTaiKhoan';
 
 async function initLedger(req, res) {
     let gateway;

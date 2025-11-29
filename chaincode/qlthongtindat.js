@@ -26,7 +26,7 @@ class QLThongTinDat extends Contract {
         const userBytes = await ctx.stub.getState(`USER_${chuSoHuu}`);
         if (!userBytes || userBytes.length===0) throw new Error(`Chu so huu ${chuSoHuu} khong ton tai`);
         if (!landTypes.includes(loaiDat)) throw new Error(`Loai dat ${loaiDat} khong hop le`);
-        const land = { docType:'thongtindat', maSo, chuSoHuu, diaChi, dienTich:parseFloat(dienTich), loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat:parseFloat(giaTriDat), trangThai:'active', createdAt:new Date().toISOString() };
+        const land = { docType:'thongtindat', maSo, chuSoHuu, diaChi, dienTich:parseFloat(dienTich), loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat:parseFloat(giaTriDat), trangThai:'active' };
         await ctx.stub.putState(landKey(maSo), Buffer.from(JSON.stringify(land)));
         return JSON.stringify(land);
     }   
@@ -39,7 +39,6 @@ class QLThongTinDat extends Contract {
         if (!landTypes.includes(loaiDat)) throw new Error(`Loai dat ${loaiDat} khong hop le`);
         dat.diaChi = diaChi; dat.dienTich=parseFloat(dienTich); dat.loaiDat=loaiDat;
         dat.soGiayTo=soGiayTo; dat.ngayCapGiayTo=ngayCapGiayTo; dat.giaTriDat=parseFloat(giaTriDat);
-        dat.updatedAt = new Date().toISOString();
         await ctx.stub.putState(landKey(maSo), Buffer.from(JSON.stringify(dat)));
         return JSON.stringify(dat);
     }
@@ -74,7 +73,6 @@ class QLThongTinDat extends Contract {
         if (!b || b.length===0) throw new Error(`Dat ${maSo} khong ton tai`);
         const dat = JSON.parse(b.toString());
         dat.trangThai = trangThai;
-        dat.updatedAt = new Date().toISOString();
         await ctx.stub.putState(landKey(maSo), Buffer.from(JSON.stringify(dat)));
         return JSON.stringify(dat);
     }
