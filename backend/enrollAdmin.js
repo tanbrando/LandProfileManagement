@@ -1,9 +1,3 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 'use strict';
 
 require('dotenv').config();
@@ -15,34 +9,23 @@ const path = require('path');
 
 async function main() {
     try {
-        // load the network configuration
-        
-//        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
-
-const ccpPath = path.resolve(process.env.CCP_PATH);
-        
+        const ccpPath = path.resolve(process.env.CCP_PATH);
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-        // Create a new CA client for interacting with the CA.
         const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
         const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
 
-        // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
-        console.log(`Wallet path: ${walletPath}`);
 
-        // Check to see if we've already enrolled the admin user.
-        const identity = await wallet.get('admin');
-        if (identity) {
-            console.log('An identity for the admin user "admin" already exists in the wallet');
-            return;
-        }
-
-        // Enroll the admin user, and import the new identity into the wallet.
-        const enrollment = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
-        const x509Identity = {
+        // Enroll CA admin (bootstrap identity)
+        const enrollment = await ca.enroll({ 
+            enrollmentID: 'admin', 
+            enrollmentSecret: 'adminpw' 
+        });
+        
+        const adminIdentity = {
             credentials: {
                 certificate: enrollment.certificate,
                 privateKey: enrollment.key.toBytes(),
@@ -50,11 +33,49 @@ const ccpPath = path.resolve(process.env.CCP_PATH);
             mspId: 'Org1MSP',
             type: 'X.509',
         };
-        await wallet.put('admin', x509Identity);
-        console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
+        
+        await wallet.put('caAdmin', adminIdentity);
+        
+        const adminUser = await wallet.get('caAdmin');
+        const provider = wallet.getProviderRegistry().getProvider(adminUser.type);
+        const caAdminUser = await provider.getUserContext(adminUser, 'caAdmin');
+
+        // ✅ Register new admin user với role attribute
+        const secret = await ca.register({
+            enrollmentID: 'appAdmin',
+            enrollmentSecret: 'appAdminpw',
+            role: 'client',
+            attrs: [
+                { name: 'role', value: 'admin', ecert: true }  // ✅ Set role = admin
+            ]
+        }, caAdminUser);
+
+        console.log(`Successfully registered user "appAdmin" with role=admin`);
+        console.log(`Secret: ${secret}`);
+
+        // Enroll the new admin
+        const appAdminEnrollment = await ca.enroll({
+            enrollmentID: 'appAdmin',
+            enrollmentSecret: secret,
+            attr_reqs: [
+                { name: 'role', optional: false }
+            ]
+        });
+
+        const appAdminIdentity = {
+            credentials: {
+                certificate: appAdminEnrollment.certificate,
+                privateKey: appAdminEnrollment.key.toBytes(),
+            },
+            mspId: 'Org1MSP',
+            type: 'X.509',
+        };
+
+        await wallet.put('appAdmin', appAdminIdentity);
+        console.log('Successfully enrolled appAdmin with role attribute');
 
     } catch (error) {
-        console.error(`Failed to enroll admin user "admin": ${error}`);
+        console.error(`Failed to register admin: ${error}`);
         process.exit(1);
     }
 }

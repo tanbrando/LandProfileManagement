@@ -26,7 +26,7 @@ router.post('/createLandProfile', authMiddleware, requireAdmin, validateFields({
     loaiDat : { required: true, fn: validateLandType, message: "Invalid land type" },
     soGiayTo : { required: true, fn: validateSoGiayTo, message: "Invalid document number format" },
     ngayCapGiayTo : { required: true, fn: validateDate, message: "Invalid document date format" },
-    giaTri : { required: true, fn: validateLandValue, message: "Invalid land value" },
+    giaTriDat : { required: true, fn: validateLandValue, message: "Invalid land value" },
 }), createLandProfile);
 // Cập nhật hồ sơ đất đai (Admin)
 router.put('/updateLandProfile/:maSo', authMiddleware, requireAdmin, validateFields({
@@ -36,7 +36,7 @@ router.put('/updateLandProfile/:maSo', authMiddleware, requireAdmin, validateFie
     loaiDat : { required: false, fn: validateLandType, message: "Invalid land type" },
     soGiayTo : { required: false, fn: validateSoGiayTo, message: "Invalid document number format" },
     ngayCapGiayTo : { required: false, fn: validateDate, message: "Invalid document date format" },
-    giaTri : { required: false, fn: validateLandValue, message: "Invalid land value" },
+    giaTriDat : { required: false, fn: validateLandValue, message: "Invalid land value" },
 }), updateLandProfile);
 // Xóa hồ sơ đất đai (Admin)
 router.delete('/deleteLandProfile/:maSo', authMiddleware, requireAdmin, validateFields({

@@ -12,8 +12,8 @@ class QLThongTinDat extends Contract {
 
     async initLedger(ctx) {
         const lands = [
-            { maSo:'DAT001', chuSoHuu:'user1', diaChi:'Phuong 1', dienTich:100.5, loaiDat:'ONT', soGiayTo:'GCN001', ngayCapGiayTo:'2020-01-15', giaTriDat:5000000000, docType:'thongtindat', trangThai:'active' },
-            { maSo:'DAT002', chuSoHuu:'user1', diaChi:'Phuong 2', dienTich:250, loaiDat:'LUC', soGiayTo:'GCN002', ngayCapGiayTo:'2019-05-20', giaTriDat:2500000000, docType:'thongtindat', trangThai:'active' }
+            { maSo:'DAT001', chuSoHuu:'user001', diaChi:'Phuong 1', dienTich:100.5, loaiDat:'ONT', soGiayTo:'GCN001', ngayCapGiayTo:'2020-01-15', giaTriDat:5000000000, docType:'thongtindat', trangThai:'active' },
+            { maSo:'DAT002', chuSoHuu:'user001', diaChi:'Phuong 2', dienTich:250, loaiDat:'LUC', soGiayTo:'GCN002', ngayCapGiayTo:'2019-05-20', giaTriDat:2500000000, docType:'thongtindat', trangThai:'active' }
         ];
         for (const d of lands) { await ctx.stub.putState(landKey(d.maSo), Buffer.from(JSON.stringify(d))); }
         return 'Initialized 2 sample lands';

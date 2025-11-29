@@ -104,7 +104,7 @@ async function updateLandProfile(req, res) {
     let gateway;
     try {
         const { maSo } = req.params;
-        const { chuSoHuu, diaChi, dienTich, loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat } = req.body;
+        const { diaChi, dienTich, loaiDat, soGiayTo, ngayCapGiayTo, giaTriDat } = req.body;
         const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
@@ -210,7 +210,7 @@ async function getLandProfilesByRange(req, res) {
         const contract = connection.contract;
         const result = await contract.evaluateTransaction('queryAllLandProfiles');
         const allLands = JSON.parse(result.toString());
-        const filteredLands = allLands.filter(land => land.Record.giaTriDat >= parseFloat(minGiaTri) && land.Record.giaTriDat <= parseFloat(maxGiaTri));
+        const filteredLands = allLands.filter(land => parseFloat(land.Record.giaTriDat) >= parseFloat(minGiaTri) && parseFloat(land.Record.giaTriDat) <= parseFloat(maxGiaTri));
         res.status(200).json({ success: true, data: filteredLands });
     } catch (error) {
         console.error(`Lỗi khi lấy danh sách đất theo khoảng giá trị: ${error}`);
@@ -368,7 +368,13 @@ async function getLandStatusStatistics(req, res) {
         console.error(`Lỗi khi lấy thống kê trạng thái đất: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi lấy thống kê trạng thái đất: ${error.message}` });
     } finally {
-        if (gateway) await gateway.disconnect().catch(() => {});
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
     }
 }
 

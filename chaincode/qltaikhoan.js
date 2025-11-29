@@ -25,9 +25,9 @@ class QLTaiKhoan extends Contract {
     }
 
     async initLedger(ctx) {
-        const user1 = { userId:'user1', name:'Nguyen Van A', passwordHash:hashPassword('123qwe!@#'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true };
+        const user1 = { userId:'user001', name:'Nguyen Van A', passwordHash:hashPassword('User@001'), email: 'user1@example.com', phone: '0987654321', role:'user', active:true };
         await ctx.stub.putState(userKey(user1.userId), Buffer.from(JSON.stringify(user1)));
-        const user2 = { userId:'user2', name:'Tran Thi B', passwordHash:hashPassword('123qwe!@#'), email: 'user2@example.com', phone: '0987654322', role:'user', active:true };
+        const user2 = { userId:'user002', name:'Tran Thi B', passwordHash:hashPassword('User@002'), email: 'user2@example.com', phone: '0987654322', role:'user', active:true };
         await ctx.stub.putState(userKey(user2.userId), Buffer.from(JSON.stringify(user2)));
         return 'Initialized 2 users';
     }

@@ -4,11 +4,13 @@ const contractName = 'QLChuyenNhuong';
 async function createTransaction(req, res) {
     let gateway;
     try {
-        const { maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich } = req.body;
+        if (req.user?.userId !== req.body.chuSoHuuCu && req.user?.role !== 'admin') 
+            return res.status(403).json({ success: false, message: 'Bạn không có quyền tạo giao dịch cho người khác' });
+        const { maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian } = req.body;
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
-        await contract.submitTransaction('createTransaction', maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich);
+        await contract.submitTransaction('createTransaction', maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian);
         res.status(201).json({ success: true, message: `Đã tạo giao dịch cho đất ${maSo} thành công` });
     } catch (error) {
         console.error(`Lỗi khi tạo giao dịch: ${error}`);
@@ -59,6 +61,30 @@ async function rejectTransaction(req, res) {
     } catch (error) {
         console.error(`Lỗi khi từ chối giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi từ chối giao dịch: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
+async function cancelTransaction(req, res) {
+    let gateway;
+    try {
+        const { txId } = req.params;
+        const userId = req.user?.userId;
+        const connection = await connectToNetwork(contractName);
+        gateway = connection.gateway;
+        const contract = connection.contract;
+        await contract.submitTransaction('cancelTransaction', txId, userId);
+        res.status(200).json({ success: true, message: `Đã hủy giao dịch ${txId} thành công` });
+    } catch (error) {
+        console.error(`Lỗi khi hủy giao dịch: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi hủy giao dịch: ${error.message}` });
     } finally {
         if (gateway) {
             try {
@@ -202,6 +228,7 @@ module.exports = {
     createTransaction,
     approveTransaction, 
     rejectTransaction, 
+    cancelTransaction,
     getTransaction, 
     getAllTransactions, 
     getTransactionsByUser,

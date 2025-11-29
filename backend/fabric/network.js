@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 async function connectToNetwork(contractName, isAdmin = false) {
-    const user = isAdmin ? 'admin' : 'appUser';
+    const user = isAdmin ? 'appAdmin' : 'appUser';
     const ccpPath = path.resolve(process.env.CCP_PATH);
     const chaincodeName = process.env.CHAINCODE_NAME || 'qlthongtindat';
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
