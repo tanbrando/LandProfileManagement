@@ -130,6 +130,15 @@ class QLTaiKhoan extends Contract {
         return JSON.stringify(user);
     }
 
+    async resetPassword(ctx, userId, newPassword) {
+        const userBytes = await ctx.stub.getState(userKey(userId));
+        if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
+        const user = JSON.parse(userBytes.toString());
+        user.passwordHash = hashPassword(newPassword);
+        await ctx.stub.putState(userKey(userId), Buffer.from(JSON.stringify(user)));
+        return JSON.stringify(user);
+    }
+
     async updateUserProfile(ctx, userId, name, phone) {
         const userBytes = await ctx.stub.getState(userKey(userId));
         if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);

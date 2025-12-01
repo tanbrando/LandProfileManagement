@@ -79,7 +79,7 @@ async function resetPassword(req, res) {
         const result = await contract.evaluateTransaction("queryUserByEmail", email);
         const user = JSON.parse(result.toString());
 
-        await contract.submitTransaction("updatePassword", user.userId, user.passwordHash, hashPassword(newPassword));
+        await contract.submitTransaction("resetPassword", user.userId, newPassword);
 
         res.json({ success: true, message: "Đã đặt lại mật khẩu thành công" });
 

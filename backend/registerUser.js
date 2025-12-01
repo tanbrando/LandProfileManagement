@@ -4,57 +4,63 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-// Khai bao bien USER_NAME
 const USER_NAME = "appUser";
+const ADMIN_NAME = "caAdmin";  // ✅ Dùng caAdmin thay vì appAdmin
 
 async function registerUser() {
     try {
-        // Load connection profile
         const ccpPath = path.resolve(process.env.CCP_PATH);
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-        // Create wallet
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
-        // Check if user already exists - su dung bien USER_NAME
+        // Check if user already exists
         const userIdentity = await wallet.get(USER_NAME);
         if (userIdentity) {
-            console.log(`User "${USER_NAME}" already exists in wallet`);
+            console.log(`✅ User "${USER_NAME}" already exists in wallet`);
             return;
         }
 
-        // Check if admin exists
-        const adminIdentity = await wallet.get('admin');
+        // ✅ Dùng caAdmin (có full registrar rights)
+        const adminIdentity = await wallet.get(ADMIN_NAME);
         if (!adminIdentity) {
-            console.log('Admin identity not found. Run enrollAdmin.js first!');
+            console.log(`❌ ${ADMIN_NAME} identity not found`);
             return;
         }
 
-        // Create CA client
         const caInfo = ccp.certificateAuthorities['ca.org1.example.com'];
         const caTLSCACerts = caInfo.tlsCACerts.pem;
-        const ca = new FabricCAServices(caInfo.url, { trustedRoots: caTLSCACerts, verify: false }, caInfo.caName);
+        const ca = new FabricCAServices(caInfo.url, { 
+            trustedRoots: caTLSCACerts, 
+            verify: false 
+        }, caInfo.caName);
 
-        // Get admin identity
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-        const adminUser = await provider.getUserContext(adminIdentity, 'admin');
+        const adminUser = await provider.getUserContext(adminIdentity, ADMIN_NAME);
 
-        // Register user - su dung bien USER_NAME
+        // Register user
         const secret = await ca.register({
             affiliation: 'org1.department1',
             enrollmentID: USER_NAME,
-            role: 'client'
+            role: 'client',
+            attrs: [
+                { name: 'role', value: 'user', ecert: true }
+            ]
         }, adminUser);
 
-        // Enroll user - su dung bien USER_NAME
+        console.log(`✅ User "${USER_NAME}" registered with secret: ${secret}`);
+
+        // Enroll user
         const enrollment = await ca.enroll({
             enrollmentID: USER_NAME,
-            enrollmentSecret: secret
+            enrollmentSecret: secret,
+            attr_reqs: [
+                { name: 'role', optional: false }
+            ]
         });
 
-        // Create identity and add to wallet - su dung bien USER_NAME
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
@@ -65,10 +71,10 @@ async function registerUser() {
         };
 
         await wallet.put(USER_NAME, x509Identity);
-        console.log(`Successfully registered and enrolled user "${USER_NAME}"`);
+        console.log(`✅ Successfully registered and enrolled user "${USER_NAME}"`);
 
     } catch (error) {
-        console.error(`Failed to register user: ${error}`);
+        console.error(`❌ Failed to register user: ${error}`);
         process.exit(1);
     }
 }

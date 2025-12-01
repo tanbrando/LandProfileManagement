@@ -27,7 +27,9 @@ async function createUser(req, res) {
     let gateway;
     try {
         const { userId, name, password, email, phone } = req.body;
-        email = req.email;
+        if (email != req.email) {
+            return res.status(403).json({ success: false, message: "Email không khớp với email đã xác thực qua OTP" });
+        }
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
