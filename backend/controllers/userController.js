@@ -142,6 +142,29 @@ async function getUser(req, res) {
     }
 }
 
+async function getUserById(req, res) {
+    let gateway;
+    try {
+        const { userId } = req.params;
+        const connection = await connectToNetwork(contractName);
+        gateway = connection.gateway;
+        const contract = connection.contract;   
+        const result = await contract.evaluateTransaction('queryUser', userId);
+        res.status(200).json({ success: true, data: JSON.parse(result.toString()) });
+    } catch (error) {
+        console.error(`Lỗi khi truy vấn tài khoản theo ID: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi truy vấn tài khoản theo ID: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
 async function getAllUsers(req, res) {
     let gateway;
     try {
@@ -242,6 +265,7 @@ module.exports = {
     deactivateUser,
     reactivateUser,
     getUser,
+    getUserById,
     getAllUsers,
     updatePassword,
     updateUserProfile,

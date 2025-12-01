@@ -74,7 +74,9 @@ class QLTaiKhoan extends Contract {
     async queryUser(ctx, userId) {
         const userBytes = await ctx.stub.getState(userKey(userId));
         if (!userBytes || userBytes.length===0) throw new Error(`User ${userId} not found`);
-        return userBytes.toString();
+        const user = JSON.parse(userBytes.toString());
+        const { passwordHash, ...userWithoutPassword } = user;
+        return JSON.stringify(userWithoutPassword);
     }
 
     async queryUserByEmail(ctx, email) {
@@ -83,7 +85,8 @@ class QLTaiKhoan extends Contract {
         for await (const { key,value } of ctx.stub.getStateByRange(startKey,endKey)) {
             const record = JSON.parse(value.toString('utf8'));
             if (record.email === email) {
-                return JSON.stringify(record);
+                const { passwordHash, ...userWithoutPassword } = record;
+                return JSON.stringify(userWithoutPassword);
             }
         }
         throw new Error(`User with email ${email} not found`);
@@ -95,7 +98,8 @@ class QLTaiKhoan extends Contract {
         const allResults = [];
         for await (const { key,value } of ctx.stub.getStateByRange(startKey,endKey)) {
             const record = JSON.parse(value.toString('utf8'));
-            allResults.push({ Key:key, Record:record });
+            const { passwordHash, ...userWithoutPassword } = record;
+            allResults.push({ Key:key, Record:userWithoutPassword });
         }
         return JSON.stringify(allResults);
     }
