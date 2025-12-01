@@ -31,7 +31,10 @@ router.delete('/deleteUser/:userId', authMiddleware, requireAdmin, validateField
 }), deleteUser);
 // Lấy tất cả người dùng (Admin)
 router.get('/getAllUsers', authMiddleware, requireAdmin, getAllUsers);
-
+// Lấy thông tin người dùng theo ID (Admin)
+router.get('/getUserById/:userId', authMiddleware, requireAdmin, validateFields({
+    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
+}), getUserById);
 
 // Tạo tài khoản người dùng (Yêu cầu OTP)
 router.post('/createUser', requireOTP, validateFields({
