@@ -3,7 +3,8 @@ const router = express.Router();
 const { 
     createTransaction, approveTransaction, rejectTransaction, 
     getAllTransactions, getTransaction, getTransactionsByUser,
-    getTransactionStatusStatistics, getTransactionTypeStatistics, cancelTransaction 
+    getTransactionStatusStatistics, getTransactionTypeStatistics, 
+    cancelTransaction, getTransactionsByStatus, getTransactionsByType 
 } = require('../controllers/transactionController');
 const { authMiddleware, requireAdmin } = require('../middlewares/authMiddleware');
 const { validateFields } = require('../middlewares/validateFields');
