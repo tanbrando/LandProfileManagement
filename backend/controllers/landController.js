@@ -154,7 +154,7 @@ async function deleteLandProfile(req, res) {
 async function getUserLandProfiles(req, res) {
     let gateway;
     try {
-        const userId = req.user?.userId;
+        const userId = req.params.chuSoHuu || req.user?.userId;
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;

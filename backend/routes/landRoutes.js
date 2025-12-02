@@ -75,6 +75,10 @@ router.get('/getLandProfilesByType/:loaiDat', authMiddleware, validateFields({
 }), getLandProfilesByType);
 // Lấy tất cả hồ sơ đất đai của người dùng hiện tại
 router.get('/getUserLandProfiles', authMiddleware, getUserLandProfiles);
+// Lấy hồ sơ đất đai theo chủ sở hữu
+router.get('/getUserLandProfiles/:chuSoHuu', authMiddleware, validateFields({
+    chuSoHuu : { required: true, fn: validateUserId, message: "Invalid user ID format" },
+}), getUserLandProfiles);
 
 
 module.exports = router;

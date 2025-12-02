@@ -31,10 +31,7 @@ router.delete('/deleteUser/:userId', authMiddleware, requireAdmin, validateField
 }), deleteUser);
 // Lấy tất cả người dùng (Admin)
 router.get('/getAllUsers', authMiddleware, requireAdmin, getAllUsers);
-// Lấy thông tin người dùng theo ID (Admin)
-router.get('/getUserById/:userId', authMiddleware, requireAdmin, validateFields({
-    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
-}), getUserById);
+
 
 // Tạo tài khoản người dùng (Yêu cầu OTP)
 router.post('/createUser', requireOTP, validateFields({
@@ -46,6 +43,10 @@ router.post('/createUser', requireOTP, validateFields({
 }), createUser);
 // Lấy thông tin người dùng hiện tại
 router.get('/getUser', authMiddleware, getUser);
+// Lấy thông tin người dùng theo ID (Admin)
+router.get('/getUser/:userId', authMiddleware, requireAdmin, validateFields({
+    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
+}), getUser);
 // Cập nhật mật khẩu người dùng
 router.put('/updatePassword', authMiddleware, validateFields({
     oldPassword: { required: true, fn: validatePassword, message: "Invalid password format" },
@@ -56,6 +57,8 @@ router.put('/updateUserProfile', authMiddleware, validateFields({
     name: { required: true, fn: validateName, message: "Invalid name format" },
     phone: { required: true, fn: validatePhone, message: "Invalid phone number format" }
 }), updateUserProfile);
+
+
 
 
 module.exports = router;

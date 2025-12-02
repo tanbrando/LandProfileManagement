@@ -30,16 +30,16 @@ function validateUserId(id) {
 }
 
 // landId (maSo)
-// Format: DAT0001
+// Format: DAT001
 function validateLandId(id) {
-    const regex = /^DAT[0-9]{4}$/;
+    const regex = /^DAT[0-9]{3}$/;
     return regex.test(id);
 }
 
 // soGiayTo
-// Format: GCN0001
+// Format: GCN001
 function validateSoGiayTo(num) {
-    const regex = /^GCN[0-9]{4}$/;
+    const regex = /^GCN[0-9]{3}$/;
     return regex.test(num);
 }
 
@@ -77,6 +77,11 @@ function validateLandStatus(status) {
 function validateTxType(type) {
     const transactionTypes = ['transfer', 'mortgage', 'inheritance', 'gift'];
     return transactionTypes.includes(type);
+}
+
+function validateTxStatus(status) {
+    const transactionStatuses = ['pending', 'approved', 'rejected', 'cancelled'];
+    return transactionStatuses.includes(status);
 }
 
 function validateTxId(id) {
@@ -123,5 +128,6 @@ module.exports = {
     validateLandValue,
     validateArea,
     validateAddress,
-    validateName
+    validateName,
+    validateTxStatus
 };

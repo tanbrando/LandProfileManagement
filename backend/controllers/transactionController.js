@@ -146,7 +146,7 @@ async function getAllTransactions(req, res) {
 async function getTransactionsByUser(req, res) {
     let gateway;
     try {
-        const userId = req.user?.userId;
+        const userId = req.params.userId || req.user?.userId;
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
@@ -224,6 +224,56 @@ async function getTransactionTypeStatistics(req, res) {
     }
 }
 
+async function getTransactionsByType(req, res) {
+    let gateway;
+    try {
+        const { loaiGiaoDich } = req.params;
+        const connection = await connectToNetwork(contractName, true);
+        gateway = connection.gateway;
+        const contract = connection.contract;
+        const result = await contract.evaluateTransaction('queryAllTransactions');
+        const filteredTransactions = JSON.parse(result.toString()).filter(tx => tx.Record.loaiGiaoDich === loaiGiaoDich);
+        const transactions = filteredTransactions;
+        res.status(200).json({ success: true, data: transactions });
+    } catch (error) {
+        console.error(`Lỗi khi truy vấn giao dịch theo loại: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi truy vấn giao dịch theo loại: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
+async function getTransactionsByStatus(req, res) {
+    let gateway;
+    try {
+        const { status } = req.params;
+        const connection = await connectToNetwork(contractName, true);
+        gateway = connection.gateway;
+        const contract = connection.contract;
+        const result = await contract.evaluateTransaction('queryAllTransactions');
+        const filteredTransactions = JSON.parse(result.toString()).filter(tx => tx.Record.status === status);
+        const transactions = filteredTransactions;
+        res.status(200).json({ success: true, data: transactions });
+    } catch (error) {
+        console.error(`Lỗi khi truy vấn giao dịch theo trạng thái: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi truy vấn giao dịch theo trạng thái: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
 module.exports = { 
     createTransaction,
     approveTransaction, 
@@ -233,5 +283,7 @@ module.exports = {
     getAllTransactions, 
     getTransactionsByUser,
     getTransactionStatusStatistics,
-    getTransactionTypeStatistics 
+    getTransactionTypeStatistics,
+    getTransactionsByType,
+    getTransactionsByStatus
 };

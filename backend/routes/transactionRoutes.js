@@ -7,7 +7,11 @@ const {
 } = require('../controllers/transactionController');
 const { authMiddleware, requireAdmin } = require('../middlewares/authMiddleware');
 const { validateFields } = require('../middlewares/validateFields');
-const { validateLandId, validateUserId, validateLandValue, validateTxType, validateTxId, validateDate } = require('../utils/validator');
+const { 
+    validateLandId, validateUserId, validateLandValue, 
+    validateTxType, validateTxId, validateDate, 
+    validateTxStatus 
+} = require('../utils/validator');
 
 // Phê duyệt giao dịch (Admin)
 router.post('/approveTransaction/:txId', authMiddleware, requireAdmin, validateFields({
@@ -19,6 +23,14 @@ router.post('/rejectTransaction/:txId', authMiddleware, requireAdmin, validateFi
 }), rejectTransaction);
 // Lấy tất cả giao dịch (Admin)
 router.get('/getAllTransactions', authMiddleware, requireAdmin, getAllTransactions);
+// Lấy giao dịch theo trạng thái (Admin)
+router.get('/getTransactionsByStatus/:status', authMiddleware, requireAdmin, validateFields({
+    status: { required: true, fn: validateTxStatus, message: "Transaction status is required" }
+}), getTransactionsByStatus);
+// Lấy giao dịch theo loại (Admin)
+router.get('/getTransactionsByType/:loaiGiaoDich', authMiddleware, requireAdmin, validateFields({
+    loaiGiaoDich: { required: true, fn: validateTxType, message: "Transaction type is required" }
+}), getTransactionsByType);
 // Thống kê trạng thái giao dịch (Admin)
 router.get('/getTransactionStatusStatistics', authMiddleware, requireAdmin, getTransactionStatusStatistics);
 // Thống kê loại giao dịch (Admin)
@@ -39,6 +51,10 @@ router.get('/getTransaction/:txId', authMiddleware, validateFields({
 }), getTransaction);
 // Lấy giao dịch theo người dùng hiện tại
 router.get('/getTransactionsByUser', authMiddleware, getTransactionsByUser);
+// Lấy tất cả giao dịch của một người dùng (Admin)
+router.get('/getTransactionsByUser/:userId', authMiddleware, requireAdmin, validateFields({
+    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" }
+}), getTransactionsByUser);
 // Hủy giao dịch
 router.post('/cancelTransaction/:txId', authMiddleware, validateFields({
     txId: { required: true, fn: validateTxId, message: "Invalid transaction ID format" }

@@ -7,14 +7,7 @@ const PDFDocument = require('pdfkit');
 async function createUserReport(req, res) {
     let transGateway, landGateway, userGateway;
     try {
-        const role = req.user?.role;
-
-        let userId;
-        if (role === 'Admin') {
-            userId = req.params.userId || req.user?.userId;
-        } else {
-            userId = req.user?.userId;
-        }
+        const userId = req.params.userId || req.user.userId;
 
         if (!userId) {
             return res.status(400).json({ success: false, message: 'User ID không được cung cấp' });
