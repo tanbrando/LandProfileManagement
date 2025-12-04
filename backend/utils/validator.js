@@ -85,7 +85,8 @@ function validateTxStatus(status) {
 }
 
 function validateTxId(id) {
-    return /^[a-f0-9]{64}$/.test(id);
+    const regex = /^TRANS[0-9]{3}$/;
+    return regex.test(id);
 }
 
 function validateUserRole(role) {

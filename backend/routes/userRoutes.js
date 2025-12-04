@@ -57,6 +57,13 @@ router.put('/updateUserProfile', authMiddleware, validateFields({
     name: { required: true, fn: validateName, message: "Invalid name format" },
     phone: { required: true, fn: validatePhone, message: "Invalid phone number format" }
 }), updateUserProfile);
+// Cập nhật thông tin hồ sơ người dùng bởi Admin
+router.put('/updateUserProfile/:userId', authMiddleware, requireAdmin, validateFields({
+    userId: { required: true, fn: validateUserId, message: "Invalid user ID format" },
+    name: { required: true, fn: validateName, message: "Invalid name format" },
+    phone: { required: true, fn: validatePhone, message: "Invalid phone number format" }
+}), updateUserProfile);
+
 
 
 

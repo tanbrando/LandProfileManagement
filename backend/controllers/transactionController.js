@@ -1,16 +1,38 @@
 const {connectToNetwork} = require('../fabric/network');
 const contractName = 'QLChuyenNhuong';
 
+async function initTransactionLedger(req, res) {
+    let gateway;
+    try {
+        const connection = await connectToNetwork(contractName, true);
+        gateway = connection.gateway;
+        const contract = connection.contract;
+        await contract.submitTransaction('initLedger');
+        res.status(200).json({ success: true, message: 'Đã khởi tạo sổ cái giao dịch thành công' });
+    } catch (error) {
+        console.error(`Lỗi khi khởi tạo sổ cái giao dịch: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi khởi tạo sổ cái giao dịch: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
 async function createTransaction(req, res) {
     let gateway;
     try {
         if (req.user?.userId !== req.body.chuSoHuuCu && req.user?.role !== 'admin') 
             return res.status(403).json({ success: false, message: 'Bạn không có quyền tạo giao dịch cho người khác' });
-        const { maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian } = req.body;
+        const { txId, maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian } = req.body;
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
         const contract = connection.contract;
-        await contract.submitTransaction('createTransaction', maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian);
+        await contract.submitTransaction('createTransaction', txId, maSo, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian);
         res.status(201).json({ success: true, message: `Đã tạo giao dịch cho đất ${maSo} thành công` });
     } catch (error) {
         console.error(`Lỗi khi tạo giao dịch: ${error}`);
@@ -85,6 +107,32 @@ async function cancelTransaction(req, res) {
     } catch (error) {
         console.error(`Lỗi khi hủy giao dịch: ${error}`);
         res.status(500).json({ success: false, message: `Lỗi khi hủy giao dịch: ${error.message}` });
+    } finally {
+        if (gateway) {
+            try {
+                gateway.disconnect(); 
+            } catch (err) {
+                console.error('Lỗi khi ngắt kết nối gateway:', err);
+            }
+        }
+    }
+}
+
+async function updateTransaction(req, res) {
+    let gateway;
+    try {
+        const { txId } = req.params;
+        if (req.user?.userId !== req.body.chuSoHuuCu && req.user?.role !== 'admin') 
+            return res.status(403).json({ success: false, message: 'Bạn không có quyền cập nhật giao dịch cho người khác' });
+        const { chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian } = req.body;
+        const connection = await connectToNetwork(contractName);
+        gateway = connection.gateway;
+        const contract = connection.contract;
+        await contract.submitTransaction('updateTransaction', txId, chuSoHuuCu, chuSoHuuMoi, giaTri, loaiGiaoDich, thoiGian, status);
+        res.status(200).json({ success: true, message: `Đã cập nhật giao dịch ${txId} thành công` });
+    } catch (error) {
+        console.error(`Lỗi khi cập nhật giao dịch: ${error}`);
+        res.status(500).json({ success: false, message: `Lỗi khi cập nhật giao dịch: ${error.message}` });
     } finally {
         if (gateway) {
             try {
@@ -275,10 +323,12 @@ async function getTransactionsByStatus(req, res) {
 }
 
 module.exports = { 
+    initTransactionLedger,
     createTransaction,
     approveTransaction, 
     rejectTransaction, 
     cancelTransaction,
+    updateTransaction,
     getTransaction, 
     getAllTransactions, 
     getTransactionsByUser,

@@ -4,7 +4,8 @@ const {
     createTransaction, approveTransaction, rejectTransaction, 
     getAllTransactions, getTransaction, getTransactionsByUser,
     getTransactionStatusStatistics, getTransactionTypeStatistics, 
-    cancelTransaction, getTransactionsByStatus, getTransactionsByType 
+    cancelTransaction, getTransactionsByStatus, getTransactionsByType,
+    updateTransaction, initTransactionLedger 
 } = require('../controllers/transactionController');
 const { authMiddleware, requireAdmin } = require('../middlewares/authMiddleware');
 const { validateFields } = require('../middlewares/validateFields');
@@ -14,6 +15,9 @@ const {
     validateTxStatus 
 } = require('../utils/validator');
 
+
+// Khởi tạo sổ cái giao dịch (Admin)
+router.post('/initLedger', authMiddleware, requireAdmin, initTransactionLedger);
 // Phê duyệt giao dịch (Admin)
 router.post('/approveTransaction/:txId', authMiddleware, requireAdmin, validateFields({
     txId: { required: true, fn: validateTxId, message: "Invalid transaction ID format" }
@@ -39,6 +43,7 @@ router.get('/getTransactionTypeStatistics', authMiddleware, requireAdmin, getTra
 
 // Tạo giao dịch
 router.post('/createTransaction', authMiddleware, validateFields({
+    txId: { required: true, fn: validateTxId, message: "Invalid transaction ID format" },
     maSo : { required: true, fn: validateLandId, message: "Invalid land ID format" },
     chuSoHuuCu : { required: true, fn: validateUserId, message: "Invalid old owner ID format" },
     chuSoHuuMoi : { required: true, fn: validateUserId, message: "Invalid new owner ID format" },
@@ -46,6 +51,15 @@ router.post('/createTransaction', authMiddleware, validateFields({
     loaiGiaoDich : { required: true, fn: validateTxType, message: "Invalid transaction type" },
     thoiGian : { required: true, fn: validateDate, message: "Transaction time is required" }
 }), createTransaction);
+// Cập nhật giao dịch
+router.put('/updateTransaction/:txId', authMiddleware, validateFields({
+    txId: { required: true, fn: validateTxId, message: "Invalid transaction ID format" },
+    chuSoHuuCu : { required: true, fn: validateUserId, message: "Invalid old owner ID format" },
+    chuSoHuuMoi : { required: true, fn: validateUserId, message: "Invalid new owner ID format" },
+    giaTri : { required: true, fn: validateLandValue, message: "Invalid land value" },
+    loaiGiaoDich : { required: true, fn: validateTxType, message: "Invalid transaction type" },
+    thoiGian : { required: true, fn: validateDate, message: "Transaction time is required" }
+}), updateTransaction);
 // Lấy chi tiết giao dịch
 router.get('/getTransaction/:txId', authMiddleware, validateFields({
     txId: { required: true, fn: validateTxId, message: "Invalid transaction ID format" }

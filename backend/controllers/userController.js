@@ -191,7 +191,7 @@ async function updatePassword(req, res) {
 async function updateUserProfile(req, res) {
     let gateway;
     try {
-        const userId = req.user?.userId;
+        const userId = req.params.userId || req.user?.userId;
         const { name, phone } = req.body;
         const connection = await connectToNetwork(contractName);
         gateway = connection.gateway;
