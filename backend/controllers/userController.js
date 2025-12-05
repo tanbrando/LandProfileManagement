@@ -103,7 +103,7 @@ async function reactivateUser(req, res) {
         const connection = await connectToNetwork(contractName, true);
         gateway = connection.gateway;
         const contract = connection.contract;   
-        await contract.submitTransaction('reactivateUser', userId);
+        await contract.submitTransaction('activateUser', userId);
         res.status(200).json({ success: true, message: `Đã kích hoạt lại tài khoản ${userId} thành công` });
     } catch (error) {
         console.error(`Lỗi khi kích hoạt lại tài khoản: ${error}`);
