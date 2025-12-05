@@ -1,0 +1,22 @@
+*:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #ff9800;
+    --white-green: #F1F3E0;
+    --light-green: #D2DCB6;
+    --green: #A1BC98;
+    --dark-green: #778873;
+    --text-color: #2b3329;
+    --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --border-radius: 4px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: var(--font-family);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+

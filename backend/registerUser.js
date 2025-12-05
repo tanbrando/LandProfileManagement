@@ -19,14 +19,14 @@ async function registerUser() {
         // Check if user already exists
         const userIdentity = await wallet.get(USER_NAME);
         if (userIdentity) {
-            console.log(`✅ User "${USER_NAME}" already exists in wallet`);
+            console.log(`User "${USER_NAME}" already exists in wallet`);
             return;
         }
 
-        // ✅ Dùng caAdmin (có full registrar rights)
+        // Dùng caAdmin (có full registrar rights)
         const adminIdentity = await wallet.get(ADMIN_NAME);
         if (!adminIdentity) {
-            console.log(`❌ ${ADMIN_NAME} identity not found`);
+            console.log(`${ADMIN_NAME} identity not found`);
             return;
         }
 

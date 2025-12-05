@@ -56,9 +56,6 @@ async function createUserReport(req, res) {
 
         // ===== XUẤT CSV =====
         if (format === 'csv') {
-            const filePath = path.join(__dirname, `user_report_${userId}.csv`);
-            const ws = fs.createWriteStream(filePath);
-            // Chuyển reportData thành flat array cho CSV
             const csvData = [
                 {
                     userId: reportData.userId,
@@ -72,39 +69,68 @@ async function createUserReport(req, res) {
                     numOfPendingTransactions: reportData.numOfPendingTransactions,
                 }
             ];
-            fastcsv.write(csvData, { headers: true }).pipe(ws).on('finish', () => {
-                res.download(filePath, `user_report_${userId}.csv`, (err) => {
-                    if (err) console.error(err);
-                    fs.unlinkSync(filePath);
-                });
-            });
+
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename=user_report_${userId}.csv`);
+            
+            const csvStream = fastcsv.format({ headers: true });
+            csvStream.pipe(res);
+            csvData.forEach(row => csvStream.write(row));
+            csvStream.end();
             return;
         }
 
         // ===== XUẤT PDF =====
         if (format === 'pdf') {
-            const filePath = path.join(__dirname, `user_report_${userId}.pdf`);
             const doc = new PDFDocument();
-            doc.pipe(fs.createWriteStream(filePath));
+            const chunks = [];
+            
+            doc.on('data', (chunk) => chunks.push(chunk));
+            doc.on('end', () => {
+                const pdfBuffer = Buffer.concat(chunks);
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', `attachment; filename=user_report_${userId}.pdf`);
+                res.send(pdfBuffer);
+            });
+
+            // Đăng ký font tiếng Việt (sử dụng font hệ thống Windows)
+            try {
+                // Thử các đường dẫn font phổ biến
+                const fontPaths = [
+                    'C:\\Windows\\Fonts\\Arial.ttf',
+                    'C:\\Windows\\Fonts\\times.ttf',
+                    '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', // Linux
+                    '/System/Library/Fonts/Supplemental/Arial.ttf' // Mac
+                ];
+                
+                let fontRegistered = false;
+                for (const fontPath of fontPaths) {
+                    if (fs.existsSync(fontPath)) {
+                        doc.registerFont('Vietnamese', fontPath);
+                        doc.font('Vietnamese');
+                        fontRegistered = true;
+                        break;
+                    }
+                }
+                
+                if (!fontRegistered) {
+                    console.warn('Không tìm thấy font tiếng Việt, sử dụng font mặc định');
+                }
+            } catch (err) {
+                console.error('Lỗi khi load font:', err);
+            }
+
             doc.fontSize(18).text(`Báo cáo người dùng: ${reportData.name}`, { align: 'center' });
             doc.moveDown();
             doc.fontSize(12).text(`User ID: ${reportData.userId}`);
             doc.text(`Email: ${reportData.email}`);
-            doc.text(`Phone: ${reportData.phone}`);
+            doc.text(`Điện thoại: ${reportData.phone}`);
             doc.text(`Số thửa đất: ${reportData.numOfLands}`);
-            doc.text(`Tổng diện tích: ${reportData.totalLandArea}`);
-            doc.text(`Tổng giá trị đất: ${reportData.totalLandValue}`);
+            doc.text(`Tổng diện tích: ${reportData.totalLandArea} m²`);
+            doc.text(`Tổng giá trị đất: ${reportData.totalLandValue.toLocaleString('vi-VN')} VNĐ`);
             doc.text(`Số giao dịch: ${reportData.numOfTransactions}`);
-            doc.text(`Số giao dịch pending: ${reportData.numOfPendingTransactions}`);
-            doc.moveDown();
-
+            doc.text(`Số giao dịch chờ duyệt: ${reportData.numOfPendingTransactions}`);
             doc.end();
-            doc.on('finish', () => {
-                res.download(filePath, `user_report_${userId}.pdf`, (err) => {
-                    if (err) console.error(err);
-                    fs.unlinkSync(filePath);
-                });
-            });
             return;
         }
 

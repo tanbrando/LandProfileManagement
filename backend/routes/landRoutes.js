@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
 const { 
     initLedger, getAllLandProfiles, getLandProfileById, 
     getUserLandProfiles, createLandProfile, updateLandProfile, 
@@ -43,7 +46,7 @@ router.delete('/deleteLandProfile/:maSo', authMiddleware, requireAdmin, validate
     maSo : { required: true, fn: validateLandId, message: "Invalid land ID format" },
 }), deleteLandProfile);
 // Nhập khẩu hồ sơ đất đai từ file CSV (Admin)
-router.post('/importCSVLandProfiles', authMiddleware, requireAdmin, importCSVLandProfiles);
+router.post('/importCSVLandProfiles', authMiddleware, requireAdmin, upload.single('file'), importCSVLandProfiles);
 // Xuất khẩu hồ sơ đất đai ra file CSV (Admin)
 router.get('/exportCSVLandProfiles', authMiddleware, requireAdmin, exportCSVLandProfiles);
 // Thống kê loại đất (Admin)

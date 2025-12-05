@@ -1,0 +1,51 @@
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--light-green);
+    padding: 12px;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.auth-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 24px;
+    background-color: var(--light-green);
+}
+
+.auth-intro {
+    padding: 24px;
+    text-align: left;
+    flex: 1;
+    height: calc(100vh - 120px);
+}
+
+.auth-intro__title {
+    font-size: 64px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: var(--dark-green);
+}
+
+.auth-intro__subtitle {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.auth-content {
+    width: 580px;
+    height: calc(100vh - 64px);
+    padding: 20px;
+    background-color: var(--white-green);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
