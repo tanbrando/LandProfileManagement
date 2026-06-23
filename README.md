@@ -1,17 +1,17 @@
-# Land Profile Management (Quản Lý Hồ Sơ Đất Đai)
+# Land Profile Management
 
 A blockchain-based system for managing land profiles, land transfers, and ownership records securely using **Hyperledger Fabric**. This application provides a transparent, immutable, and decentralized way to digitize land registry, ensuring that all records of land ownership and transfers are tamper-proof and easily verifiable.
 
-## 🌟 Key Features
+## Key Features
 
 - **Decentralized Land Registry**: Immutable storage of land profiles using blockchain technology.
-- **Land Transfer Management (Chuyển nhượng)**: Secure and transparent execution of land transfer workflows between parties.
+- **Land Transfer Management**: Secure and transparent execution of land transfer workflows between parties.
 - **Account Management**: Role-based access control and identity management for different system users (citizens, government officials, etc.).
 - **Audit & History**: Track the complete history of land ownership and modifications.
 - **RESTful API**: A robust Node.js backend acting as a bridge between the frontend application and the Hyperledger Fabric network.
 - **Interactive Dashboard**: A responsive React.js frontend for users to interact with the system, view their properties, and initiate transfers.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Blockchain (Smart Contracts / Chaincode)
 - **Hyperledger Fabric** (v2.2.x)
@@ -30,7 +30,7 @@ A blockchain-based system for managing land profiles, land transfers, and owners
 - **HTTP Client**: Axios
 - **Routing**: React Router DOM
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 LandProfileManagement/
@@ -49,39 +49,72 @@ LandProfileManagement/
     └── src/            # React components, pages, and API integration
 ```
 
-## 🚀 Getting Started
-
-*(Instructions for setting up the local Hyperledger Fabric network, deploying the chaincode, and running the backend/frontend should be added here depending on your specific network configuration script)*
+## Getting Started
 
 ### Prerequisites
 - Node.js (v14 or higher recommended)
-- Docker & Docker Compose (for Hyperledger Fabric network)
+- Hyperledger Fabric network (`fabric-samples`) set up on VMHyperLedger
+- Docker & Docker Compose
 - Git
 
-### Installation
+### 1. Installation & Preparation
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd LandProfileManagement
-   ```
+**1.1 Prepare the project directory**
+Extract and copy the `LandProfileManagement` folder into the `/fabric-samples/` directory on your VMHyperLedger, or clone the repository directly:
+```bash
+cd /fabric-samples/
+git clone https://github.com/tanbrando/LandProfileManagement
+```
 
-2. **Setup Chaincode & Network:**
-   - Refer to your Fabric network setup scripts to deploy the chaincode from the `chaincode/` directory.
+**1.2 Chaincode Setup**
+```bash
+cd LandProfileManagement/chaincode
+npm install
+```
 
-3. **Run the Backend:**
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   ```
+**1.3 Backend Setup**
+```bash
+cd ../backend
+# Create .env based on the example format
+cp config/.env.example config/.env 
+# Note: Configure your Gmail account and App Password in the .env file for OTP emails
+npm install
+```
 
-4. **Run the Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
+**1.4 Frontend Setup**
+```bash
+cd ../frontend
+cp .env.example .env
+npm install
+```
+
+### 2. Running the Application
+
+**2.1 Start the Chaincode (Fabric Network)**
+Navigate to the test-network directory and execute the network scripts:
+```bash
+cd /fabric-samples/test-network
+./network.sh down
+./network.sh up -ca
+./network.sh createChannel
+./network.sh deployCC -ccn qlthongtindat -ccp ../LandProfileManagement/chaincode -ccl javascript
+```
+
+**2.2 Start the Backend Server**
+After successfully deploying the chaincode, initialize the identities and start the backend API:
+```bash
+cd /fabric-samples/LandProfileManagement/backend
+node enrollAdmin.js
+node registerUser.js
+node server.js
+```
+
+**2.3 Start the Frontend Dashboard**
+Finally, start the React frontend application:
+```bash
+cd /fabric-samples/LandProfileManagement/frontend
+npm start
+```
 
 ## 📄 License
 This project is licensed under the MIT License.
